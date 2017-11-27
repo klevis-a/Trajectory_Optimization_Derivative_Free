@@ -1,0 +1,16 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch",
+            "program": "/home/klevis/catkin_ws/devel/lib/m20ia_pinv_opt/m20ia_pinv_opt",
+            "args": ["/media/sf_VMShare/newOutput/EulAngles.csv","/media/sf_VMShare/newOutput/initial_joints0.csv","/media/sf_VMShare/newOutput/computedCart.csv","/media/sf_VMShare/newOutput/computedJoints.csv", "0.002"],
+            "cwd": "/home/klevis/catkin_ws/devel/lib/m20ia_pinv_opt"
+        }
+    ]
+}
