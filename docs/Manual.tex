@@ -1,0 +1,140 @@
+\documentclass[letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{pgffor}
+\usepackage{listings}
+\lstset{
+	language=bash,
+	basicstyle=\ttfamily
+}
+\usepackage{OptimizationAlgorithmMacros}
+\pagestyle{empty}
+
+\title{\textbf{Derivative-Free Optimization Algorithm Implementation User Manual}}
+\author{Klevis Aliaj}
+\date{} % clear date
+
+\newcommand{\packageTask}[5]{
+	\subsection*{#1} \label{#2}
+	\textbf{Description}: #3 \newline
+	\textbf{Executable File}: \path{#4} \newline
+	\textbf{Input Parameters}:
+	\begin{itemize}
+		\foreach \x in #5
+		{
+			\item \x
+		}
+	\end{itemize}
+}
+
+\begin{document}
+\maketitle
+
+\section{Installation} \label{sec:installation}
+\paragraph{}
+The following installation steps have been verified on a fresh installation of Ubuntu 16.04.
+
+\subsection{Prepare Robot Operating System}
+\begin{enumerate}
+	\item Install the Robot Operation System (ROS) Kinetic release
+		\begin{enumerate}
+			\item Follow instructions at \href{http://wiki.ros.org/kinetic/Installation/Ubuntu}{\path{http://wiki.ros.org/kinetic/Installation/Ubuntu}}.
+			\item The 'Desktop Install' option will suffice
+		\end{enumerate}
+	\item Create a catkin workspace
+		\begin{enumerate}
+			\item Follow instructions at \href{http://wiki.ros.org/catkin/Tutorials/create_a_workspace}{\path{http://wiki.ros.org/catkin/Tutorials/create_a_workspace}}.
+			\item Although the instructions above say to run \lstinline[language=bash]!source /opt/ros/melodic/setup.bash! since the Kinetic release of ROS is utilized the following command should be run \lstinline[language=bash]!source /opt/ros/kinetic/setup.bash!.
+		\end{enumerate}
+\end{enumerate}
+\subsection{Install Dependencies}
+\begin{enumerate}
+	\item Clone or download the Derivative-Free Optimization Algorithm repository to \path{~/catkin_ws/src}.
+	\item Install library dependencies
+		\begin{enumerate}
+			\item Copy the installScripts directory from the repository to a path of your choosing and within a terminal window switch to the newly copied directory.
+			\begin{enumerate}
+				\item \lstinline[language=bash]!cp -R ~/catkin_ws/src/OptRepo/installScripts ~/myDir!
+				\item \lstinline[language=bash]!cd ~/myDir/installScripts!
+			\end{enumerate}
+			\item Install NLopt library: \lstinline[language=bash]!./installNLOPT.sh!
+			\item Install Pagmo2 library: \lstinline[language=bash]!./installPagmo2.sh!
+		\end{enumerate}
+\end{enumerate}
+\subsection{Build the Derivative-Free Optimization Algorithm Catkin Package}
+\begin{enumerate}
+	\item Switch to the catkin workspace: \lstinline[language=bash]!cd ~/catkin_ws!
+	\item Overlay the catkin workspace on top of the current environment: \lstinline[language=bash]!source devel/setup.bash!
+	\item Build the catkin workspace: \lstinline[language=bash]!catkin_make!
+\end{enumerate}
+
+\section{Running the Derivative-Free Optimization Algorithm}
+\paragraph{}The optimization algorithm package is comprised of 5 executables and 1 shared library. The 5 executables have been created to meet various optimization needs although it is very likely that users will need to create new executables based on the shared library to fit their specific needs. All executables depend on 2 configuration files, whose paths are specified as command line arguments to the executable. The first parameter file to be specified contains robot specifications and generic optimization algorithm parameters. These parameters are described in \nameref{sec:genericConfigFile}. The second parameter file to be specified contains specification on the input to the optimization algorithm, such as the path to the trajectory file, the tool frame to utilize, etc. The parameters in this configuration file are executable specific, so they are described \nameref{sec:taskDesc}.
+
+\paragraph{}Once the catkin workspace has been built as described in \nameref{sec:installation} the shared library will reside in \path{~/catkin_ws/devel/lib} while the executables will reside in \path{~/catkin_ws/devel/lib/OptRepo}. The example below demonstrates how to run the \nameref{singleTrajMultFrames} task but the other task have the same exact syntax.
+
+\begin{enumerate}
+	\item Switch to the executable directory: \lstinline[language=bash]!cd ~/catkin_ws/devel/lib/OptRepo!
+	\item Run the task specifying the full path to both parameter files: \newline \lstinline[language=bash]!./singleTraj_MultFrames_solver /full/path/generic_params.xml /full/path/input_params.xml!
+\end{enumerate}
+
+\section{Optimization Algorithm Generic Parameters File} \label{sec:genericConfigFile}
+\begin{itemize}
+	\item \URDFFile
+	\item \EndEffectorName
+	\item \BaseName
+	\item \VelocityLimits
+	\item \Tolerance
+	\item \RotTolerance
+	\item \XTol
+	\item \MaxEval
+	\item \Algorithm
+	\item \WorkspaceLowerCorner
+	\item \WorkspaceUpperCorner
+\end{itemize}
+
+\section{Task Listings} \label{sec:taskListing}
+\begin{enumerate}
+	\item \hyperref[singleTrajMultFrames]{Single Trajectory Multiple Frames Solver}
+	\item \hyperref[singleTrajMultSeeds]{Single Trajectory Multiple Seeds Solver}
+	\item \hyperref[batchSolver]{Batch Solver}
+	\item \hyperref[batchSolverVarSeed]{Variable Seed Batch Solver}
+	\item \hyperref[folderSolverMultFrames]{Multiple Frames Folder Solver}
+\end{enumerate}
+
+\section{Task Descriptions} \label{sec:taskDesc}
+\packageTask
+{Single Trajectory Multiple Frames Solver}
+{singleTrajMultFrames}
+{This task optimizes a single trajectory specified in \textbf{TrajectoryFile} and outputs a joint space trajectory for each tool frame specified in \textbf{Toolframes} in the path specified by \textbf{OutputDirectory}. Even though multiple seeds may be specified in \textbf{SeedsFile} these are not optimized individually. Pagmo2, the underlying optimization library, utilizes the first few iterations of the optimization algorithm to determine a seed that it deems is best suited for the problem and continues optimization using that seed.}
+{singleTraj_MultFrames_Solver}
+{{\TrajectoryFile,\SeedsFile,\Toolframes,\OutputDirectory}}
+
+\packageTask
+{Single Trajectory Multiple Seeds Solver}
+{singleTrajMultSeeds}
+{This task optimizes a single trajectory specified in \textbf{TrajectoryFile}. Each seed specified in \textbf{SeedsFile} is optimized individually and will result in a separate solution. This task only optimizes the first tool frame specified in \textbf{Toolframes}.}
+{singleTraj_MultFrames_Solver}
+{{\TrajectoryFile,\SeedsFile,\Toolframes,\OutputDirectory}}
+
+\packageTask
+{Batch Solver}
+{batchSolver}
+{This task is similar to the \nameref{singleTrajMultSeeds} task but it runs over an entire folder containing multiple subjects. It optimizes all trajectories for all subjects in the directory specified by \textbf{TrajectoryFolder} for each individual seed specified in \textbf{SeedsFile}. The joint space trajectories for each seed are output in the same folder as the trial files. This task only optimizes the first tool frame specified in \textbf{Toolframes}.}
+{batch_solver}
+{{\TrajectoryFolderSubjects,\SeedsFile,\Toolframes}}
+
+\packageTask
+{Variable Seed Batch Solver}
+{batchSolverVarSeed}
+{This task is similar to the \nameref{batchSolver} task but the seeds utilized for optimization are defined on a per-trial basis. Similar to \nameref{batchSolver}, it optimizes all trajectories for all subjects in the directory specified by \textbf{TrajectoryFolder}. However, the seeds utilized for optimizing a particular trial are specified in a file ending in \path{seedJoint.txt}. For example, to specify the seeds to utilize for optimizing the frames trajectory file, \path{UEK_015_JJ_free_01.smoothFrames.txt}, a seeds file with a filename of \path{UEK_015_JJ_free_01.seedJoint.txt} is created in the same directory as the frames trajectory file. Even though multiple seeds may be specified in the seeds file these are not optimized individually. Pagmo2, the underlying optimization library, utilizes the first few iterations of the optimization algorithm to determine a seed that it deems is best suited for the problem and continues optimization using that seed. This task only optimizes the first tool frame specified in \textbf{Toolframes}.}
+{batch_solver_varseed}
+{{\TrajectoryFolderSubjects,\Toolframes}}
+
+\packageTask
+{Multiple Frames Folder Solver}
+{folderSolverMultFrames}
+{This task optimizes all frame trajectories (files ending in \path{smoothFrames.txt}) found in \textbf{TrajectoryFolder} for all tool frames specified in \textbf{Toolframes}. Joint space trajectories are output for each individual toolframe in the directory specified by \textbf{OutputDirectory}. Even though multiple seeds may be specified in the seeds file these are not optimized individually. Pagmo2, the underlying optimization library, utilizes the first few iterations of the optimization algorithm to determine a seed that it deems is best suited for the problem and continues optimization using that seed.}
+{folderSolver_MultFrames}
+{{\TrajectoryFolder,\SeedsFile,\Toolframes,\OutputDirectory}}
+\end{document}
