@@ -1,12 +1,13 @@
-#include <TrajData.hpp>
-#include <MatrixUtils.hpp>
+#include "TrajData.h"
+#include "MatrixUtils.h"
 
-using namespace std;
-using namespace Eigen;
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
+using Eigen::AngleAxisd;
 
 void MatrixUtils::pseudoinverse(const MatrixXd &M, MatrixXd &Minv, double tolerance)
 {
-    JacobiSVD<Eigen::MatrixXd> svdOfM(M, ComputeThinU | ComputeThinV);
+    Eigen::JacobiSVD<MatrixXd> svdOfM(M, Eigen::ComputeThinU | Eigen::ComputeThinV);
     const MatrixXd U = svdOfM.matrixU();
     const MatrixXd V = svdOfM.matrixV();
     const VectorXd S = svdOfM.singularValues();

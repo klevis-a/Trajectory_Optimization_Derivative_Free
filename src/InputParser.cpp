@@ -2,9 +2,9 @@
 // Created by klevis on 4/18/18.
 //
 
-#include <InputParser.h>
+#include "InputParser.h"
 
-using namespace std;
+using std::string;
 
 InputParser::InputParser(const char *fileName) : XMLParser(fileName)  {
     readParameters();

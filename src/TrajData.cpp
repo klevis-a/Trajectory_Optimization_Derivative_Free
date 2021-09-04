@@ -1,19 +1,18 @@
-#include <TrajData.hpp>
-#include <csv.h>
-#include "MatrixUtils.hpp"
+#include "TrajData.h"
+#include "csv.h"
+#include "MatrixUtils.h"
 
 constexpr double TrajData::expMultiplier;
 constexpr double TrajData::denominator;
 
-using namespace std;
-using namespace Eigen;
+using Eigen::MatrixXd;
 
 //here empty constructor is needed so problem can be initialized empty - see mocap_traj_problem.cpp
 TrajData::TrajData()
 {
 }
 
-TrajData::TrajData(const string &workSpacePos, const MatrixXd &tf)
+TrajData::TrajData(const std::string &workSpacePos, const MatrixXd &tf)
 {
     //read in the trajectory
     io::CSVReader<17> input(workSpacePos);
@@ -44,7 +43,7 @@ TrajData::TrajData(const string &workSpacePos, const MatrixXd &tf)
     _size = rowNum;
 }
 
-const VectorXd & TrajData::dx(VecSz i) const
+const Eigen::VectorXd & TrajData::dx(VecSz i) const
 {
     return _dx[i];
 }

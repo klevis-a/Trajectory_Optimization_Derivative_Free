@@ -2,8 +2,8 @@
 // Created by klevis on 12/7/17.
 //
 
-#ifndef M20IA_TRAJ_OPT_CONFIGPARSER_H
-#define M20IA_TRAJ_OPT_CONFIGPARSER_H
+#ifndef M20IA_PINV_OPT_CONFIGPARSER_H
+#define M20IA_PINV_OPT_CONFIGPARSER_H
 
 #include <string>
 #include "XMLParser.h"
@@ -42,4 +42,4 @@ private:
 };
 
 
-#endif //M20IA_TRAJ_OPT_CONFIGPARSER_H
+#endif //M20IA_PINV_OPT_CONFIGPARSER_H

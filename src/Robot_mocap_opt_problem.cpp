@@ -2,13 +2,12 @@
 // Created by klevis on 11/2/17.
 //
 
-#include <Robot_mocap_opt_problem.hpp>
-#include <CostComp.hpp>
-#include "MatrixUtils.hpp"
+#include "Robot_mocap_opt_problem.h"
+#include "CostComp.h"
+#include "MatrixUtils.h"
 
-using namespace opt_problems;
-using namespace std;
-using namespace Eigen;
+using std::vector;
+using Eigen::VectorXd;
 
 //this dummy constructor is needed for pagmo - it wants to be able to initialize empty problems
 Robot_mocap_opt_problem::Robot_mocap_opt_problem(int dummy):_data(TrajData()), _kdl(RobotKDL()), _lowerCorner(vector<double>()), _upperCorner(vector<double>()), _velLimits(vector<double>())
@@ -35,7 +34,7 @@ double Robot_mocap_opt_problem::objFunction(const vector<double> &x) const
 {
     CostComp costComp(_data, _kdl, _lowerCorner, _upperCorner, _velLimits);
     double cost = costComp.computeVelCost(x);
-    cout << "Cost : " << cost << endl;
+    std::cout << "Cost : " << cost << std::endl;
     return cost;
 }
 
@@ -62,7 +61,7 @@ vector<double> Robot_mocap_opt_problem::EqConstraints(const vector<double> &x) c
     }
 
     //compute the forward kinematics
-    MatrixXd startingFrameSugg = _kdl.getFKFrame(jointAngles0);
+    Eigen::MatrixXd startingFrameSugg = _kdl.getFKFrame(jointAngles0);
     VectorXd poseDiff = MatrixUtils::poseDiffExtrinsic(startingFrameSugg, _data.startingFrame());
 
     //no rotation about X or Y
@@ -137,60 +136,60 @@ vector<double> Robot_mocap_opt_problem::gradient(const vector<double> &x) const
 }
 
 #if SPARSE_GRADIENT==true
-std::vector<std::pair<vector<double>::size_type, vector<double>::size_type>> Robot_mocap_opt_problem::gradient_sparsity() const
+vector<std::pair<vector<double>::size_type, vector<double>::size_type>> Robot_mocap_opt_problem::gradient_sparsity() const
 {
-  std::vector<std::pair<vector<double>::size_type, vector<double>::size_type>> retval;
-  // Objective gradient is dense
-  for (int i=0;i<m_dim;++i)
-  {
-    retval.emplace_back(0,i);
-  }
-  // Equality constraints:
-  for (int i=0;i<m_nec;++i)
-  {
-    retval.emplace_back(i+1,i);
-  }
-  // inequality constraints:
-  for (int i=0;i<m_nic;++i)
-  {
-    retval.emplace_back(i+m_nec+1,i);
-    retval.emplace_back(i+m_nec+1,i+robot_kdl_.dof);
-
-  }
-  return retval;
+    vector<std::pair<vector<double>::size_type, vector<double>::size_type>> retval;
+    // Objective gradient is dense
+    for (int i=0;i<m_dim;++i)
+    {
+        retval.emplace_back(0,i);
+    }
+    // Equality constraints:
+    for (int i=0;i<m_nec;++i)
+    {
+        retval.emplace_back(i+1,i);
+    }
+    // inequality constraints:
+    for (int i=0;i<m_nic;++i)
+    {
+        retval.emplace_back(i+m_nec+1,i);
+        retval.emplace_back(i+m_nec+1,i+robot_kdl_.dof);
+    }
+    return retval;
 }
+
 vector<double> Robot_mocap_opt_problem::sparse_gradient(const vector<double> x) const
 {
-  vector<double> grad;
-  vector<double> obj_grad=objGradient(x);
-  vector<double> eq_grad=eqGradient(x);
-  vector<double> ineq_grad=inEqGradient(x);
+    vector<double> grad;
+    vector<double> obj_grad=objGradient(x);
+    vector<double> eq_grad=eqGradient(x);
+    vector<double> ineq_grad=inEqGradient(x);
 
-  grad.resize(m_dim,0.0);
+    grad.resize(m_dim,0.0);
 
-  for(int i=0;i<m_dim;i++)
-  {
-    grad[i]=obj_grad[i];
-  }
-
-  for(int i=m_dim;i<m_dim+m_dim*m_nec;i++)
-  {
-    if(eq_grad[i-m_dim]!=0.0)
+    for(int i=0;i<m_dim;i++)
     {
-      grad.emplace_back(eq_grad[i-m_dim]);
+        grad[i]=obj_grad[i];
     }
-  }
 
-
-  for(int i=m_dim+m_dim*m_nec;i<m_dim+m_dim*m_nec+m_dim*m_nic;i++)
-  {
-    if(ineq_grad[i-m_dim-m_dim*m_nec]!=0.0)
+    for(int i=m_dim;i<m_dim+m_dim*m_nec;i++)
     {
-      grad.emplace_back(ineq_grad[i-m_dim-m_dim*m_nec]);
+        if(eq_grad[i-m_dim]!=0.0)
+        {
+            grad.emplace_back(eq_grad[i-m_dim]);
+        }
     }
-  }
 
-  return grad;
+
+    for(int i=m_dim+m_dim*m_nec;i<m_dim+m_dim*m_nec+m_dim*m_nic;i++)
+    {
+        if(ineq_grad[i-m_dim-m_dim*m_nec]!=0.0)
+        {
+            grad.emplace_back(ineq_grad[i-m_dim-m_dim*m_nec]);
+        }
+    }
+
+    return grad;
 }
 
 #endif

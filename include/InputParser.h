@@ -28,4 +28,5 @@ private:
 private:
     void readParameters();
 };
+
 #endif //M20IA_PINV_OPT_INPUTPARSER_H

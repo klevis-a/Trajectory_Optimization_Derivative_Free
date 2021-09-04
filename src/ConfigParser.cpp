@@ -4,8 +4,8 @@
 
 #include "ConfigParser.h"
 
-using namespace std;
-using namespace tinyxml2;
+using std::vector;
+using std::string;
 
 
 ConfigParser::ConfigParser(const char *fileName) : XMLParser(fileName) {
@@ -80,7 +80,3 @@ void ConfigParser::readParameters() {
     //upper corner
     _upperCorner = stringToVector(parseText("WorkspaceUpperCorner"));
 }
-
-
-
-

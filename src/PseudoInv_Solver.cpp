@@ -2,24 +2,22 @@
 // Created by klevis on 1/12/18.
 //
 
-#include <ConfigParser.h>
-#include <TrajData.hpp>
-#include <Pagmo_traj_optimization.hpp>
-#include <csv.h>
-#include <CostComp.hpp>
-#include "PseudoInv_Solver.hpp"
+#include "ConfigParser.h"
+#include "TrajData.h"
+#include "Pagmo_traj_optimization.hpp"
+#include "csv.h"
+#include "CostComp.h"
+#include "PseudoInv_Solver.h"
 
-using namespace std;
-using namespace pagmo;
-using namespace Eigen;
+using std::vector;
 
-PseudoInv_Solver::PseudoInv_Solver(const ConfigParser &configParser, const string &dataFile, const vector<vector<double>> &seeds, const MatrixXd &tf):_configParser(configParser)
+PseudoInv_Solver::PseudoInv_Solver(const ConfigParser &configParser, const std::string &dataFile, const vector<vector<double>> &seeds, const Eigen::MatrixXd &tf):_configParser(configParser)
 {
-    //cout << "Parameters File: " << parametersFile << endl;
-    //cout << "Trajectory File: " << dataFile << endl;
-    //cout << "Seeds File: " << seedsFile << endl;
-    //cout << "Toolframe: " << endl;
-    //cout << tf << endl;
+    //std::cout << "Parameters File: " << parametersFile << std::endl;
+    //std::cout << "Trajectory File: " << dataFile << std::endl;
+    //std::cout << "Seeds File: " << seedsFile << std::endl;
+    //std::cout << "Toolframe: " << std::endl;
+    //std::cout << tf << std::endl;
 
     // initialize kdl class
     _robot=RobotKDL(configParser.urdfFile(),configParser.baseName(),configParser.eeName());
@@ -28,8 +26,8 @@ PseudoInv_Solver::PseudoInv_Solver(const ConfigParser &configParser, const strin
     _data=TrajData(dataFile, tf);
 
     //create the optimization problem
-    opt_problems::Robot_mocap_opt_problem optProblem(_data, _robot, configParser.lowerCorner(), configParser.upperCorner(), configParser.velLimits());
-    problem prob{Pagmo_traj_optimization{optProblem}};
+    Robot_mocap_opt_problem optProblem(_data, _robot, configParser.lowerCorner(), configParser.upperCorner(), configParser.velLimits());
+    pagmo::problem prob{pagmo::Pagmo_traj_optimization{optProblem}};
 
     //set the tolerances
     vector<double> tol(optProblem.m_nec+optProblem.m_nic, configParser.tolerance());
@@ -41,13 +39,13 @@ PseudoInv_Solver::PseudoInv_Solver(const ConfigParser &configParser, const strin
     prob.set_c_tol(tol);
 
     //create the solving algorithm
-    nlopt nlopt{configParser.algorithm()};
+    pagmo::nlopt nlopt{configParser.algorithm()};
     nlopt.set_maxeval(configParser.maxEval());
     nlopt.set_xtol_rel(configParser.xtol());
     nlopt.set_verbosity(10);
-    _algo=algorithm{nlopt};
+    _algo=pagmo::algorithm{nlopt};
     _algo.set_verbosity(10);
-    _pop=population{prob};
+    _pop=pagmo::population{prob};
 
     //send the seeds to the algorithm
     for(auto seed : seeds)
@@ -57,7 +55,7 @@ PseudoInv_Solver::PseudoInv_Solver(const ConfigParser &configParser, const strin
     }
 }
 
-void PseudoInv_Solver::printResults(const string &jointsFile) const {
+void PseudoInv_Solver::printResults(const std::string &jointsFile) const {
     //get the best set of joint angles
     vector<double> x_best=_pop_result.champion_x();
 
@@ -74,5 +72,5 @@ void PseudoInv_Solver::solve() {
     _pop_result = _algo.evolve(_pop);
 
     //print out the final cost
-    cerr<<"Final cost:"<< _pop_result.champion_f()[0]<<endl;
+    std::cout<<"Final cost:"<< _pop_result.champion_f()[0]<<std::endl;
 }

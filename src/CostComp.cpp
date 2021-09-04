@@ -1,16 +1,19 @@
-#include <CostComp.hpp>
-#include <MatrixUtils.hpp>
 #include <fstream>
 
-using namespace std;
-using namespace Eigen;
+#include "CostComp.h"
+#include "MatrixUtils.h"
 
-CostComp::CostComp(const TrajData &data, const RobotKDL &kdl, const vector<double> &lowerCorner, const vector<double> &upperCorner, const vector<double> &velLimits):_data(data),_kdl(kdl),_lowerCorner(lowerCorner),_upperCorner(upperCorner),_velLimits(velLimits)
-{}
+using std::vector;
+using Eigen::VectorXd;
+using Eigen::MatrixXd;
+using Eigen::Map;
 
-void CostComp::writeXAchieved(const string workSpacePos) const
+CostComp::CostComp(const TrajData &data, const RobotKDL &kdl, const vector<double> &lowerCorner, const vector<double> &upperCorner, const vector<double> &velLimits):
+                    _data(data),_kdl(kdl),_lowerCorner(lowerCorner),_upperCorner(upperCorner),_velLimits(velLimits) {}
+
+void CostComp::writeXAchieved(const std::string workSpacePos) const
 {
-    ofstream csvFile;
+    std::ofstream csvFile;
     csvFile.open(workSpacePos);
 
     for(auto iter = _xAchieved.begin(); iter!=_xAchieved.end(); ++iter)
@@ -19,20 +22,20 @@ void CostComp::writeXAchieved(const string workSpacePos) const
                 << (*iter)(1,0) << "," << (*iter)(1,1) << "," << (*iter)(1,2) << "," << (*iter)(1,3)
                 << (*iter)(2,0) << "," << (*iter)(2,1) << "," << (*iter)(2,2) << "," << (*iter)(2,3)
                 << (*iter)(3,0) << "," << (*iter)(3,1) << "," << (*iter)(3,2) << "," << (*iter)(3,3)
-                << endl;
+                << std::endl;
     }
 
     csvFile.close();
 }
 
-void CostComp::writeTheta(const string workSpacePos) const
+void CostComp::writeTheta(const std::string workSpacePos) const
 {
-    ofstream csvFile;
+    std::ofstream csvFile;
     csvFile.open(workSpacePos);
 
     for(auto iter = _theta.begin(); iter!=_theta.end(); ++iter)
     {
-        csvFile << (*iter)[0] << "," << (*iter)[1] << "," << (*iter)[2] << "," << (*iter)[3] << "," << (*iter)[4] << "," << (*iter)[5] << endl;
+        csvFile << (*iter)[0] << "," << (*iter)[1] << "," << (*iter)[2] << "," << (*iter)[3] << "," << (*iter)[4] << "," << (*iter)[5] << std::endl;
     }
 
     csvFile.close();
@@ -84,7 +87,7 @@ double CostComp::computePosEquality(const vector<double> &initial_joints)
     return totalPositionCost;
 }
 
-std::vector<double> CostComp::computeIneq(const vector<double> &x)
+vector<double> CostComp::computeIneq(const vector<double> &x)
 {
     computeDerived(x);
 
@@ -99,8 +102,8 @@ std::vector<double> CostComp::computeIneq(const vector<double> &x)
         }
     }
 
-    //int count = count_if(retVel.begin(), retVel.end(), [](int n) {return n >= 0.001;} );
-    //cout << "Violated velocity count: " << count << endl;
+    //int count = std::count_if(retVel.begin(), retVel.end(), [](int n) {return n >= 0.001;} );
+    //std::cout << "Violated velocity count: " << count << std::endl;
 
     //set joint limits - note that the bounds on the problems only apply to the initial position
     //therefore inequality constraints on the rest of the positions are necessary
@@ -114,8 +117,8 @@ std::vector<double> CostComp::computeIneq(const vector<double> &x)
         }
     }
 
-    //count = count_if(retVel.begin(), retVel.end(), [](int n) {return n >= 0.001;} );
-    //cout << "Violated joint count: " << count << endl;
+    //count = std::count_if(retVel.begin(), retVel.end(), [](int n) {return n >= 0.001;} );
+    //std::cout << "Violated joint count: " << count << std::endl;
 
     //this places workspace bounds on the starting position
     VectorXd initPosition = _xAchieved[0].topRightCorner<3,1>();
@@ -186,21 +189,21 @@ void CostComp::computeDerived(const vector<double> &initial_joints)
     }
 }
 
-const VectorXd & CostComp::dtheta(VecSz i) const
+const VectorXd& CostComp::dtheta(VecSz i) const
 {
     return _dtheta[i];
 }
 
-const VectorXd & CostComp::dxAchieved(VecSz i) const
+const VectorXd& CostComp::dxAchieved(VecSz i) const
 {
     return _dxAchieved[i];
 }
 
-const MatrixXd & CostComp::xAchieved(VecSz i) const
+const MatrixXd& CostComp::xAchieved(VecSz i) const
 {
     return _xAchieved[i];
 }
-const VectorXd & CostComp::theta(VecSz i) const
+const VectorXd& CostComp::theta(VecSz i) const
 {
     return _theta[i];
 }

@@ -2,8 +2,8 @@
 // Created by klevis on 12/9/17.
 //
 
-#ifndef M20IA_TRAJ_OPT_CSVWRITER_H
-#define M20IA_TRAJ_OPT_CSVWRITER_H
+#ifndef M20IA_PINV_OPT_CSVWRITER_H
+#define M20IA_PINV_OPT_CSVWRITER_H
 
 #include <vector>
 #include <string>
@@ -17,4 +17,4 @@ private:
 };
 
 
-#endif //M20IA_TRAJ_OPT_CSVWRITER_H
+#endif //M20IA_PINV_OPT_CSVWRITER_H

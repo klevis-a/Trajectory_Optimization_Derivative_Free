@@ -2,14 +2,14 @@
 // Created by klevis on 1/12/18.
 //
 
-#ifndef M20IA_PINV_OPT_PINV_SOLVER_H
-#define M20IA_PINV_OPT_PINV_SOLVER_H
+#ifndef M20IA_PINV_OPT_PSEUDOINV_SOLVER_H
+#define M20IA_PINV_OPT_PSEUDOINV_SOLVER_H
 
 #include <string>
-#include <TrajData.hpp>
-#include <ConfigParser.h>
 #include <pagmo/pagmo.hpp>
-#include <RobotKDL.h>
+#include "TrajData.h"
+#include "ConfigParser.h"
+#include "RobotKDL.h"
 
 class PseudoInv_Solver {
 public:
@@ -25,5 +25,4 @@ private:
     const ConfigParser &_configParser;
 };
 
-
-#endif //M20IA_PINV_OPT_PINV_SOLVER_H
+#endif //M20IA_PINV_OPT_PSEUDOINV_SOLVER_H

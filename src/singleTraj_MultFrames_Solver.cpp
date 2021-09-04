@@ -1,13 +1,16 @@
 #include <iostream>
-#include <PseudoInv_Solver.hpp>
-#include <csv.h>
-#include "InputParser.h"
-#include <boost/filesystem.hpp>
 #include <regex>
 
-using namespace std;
-using namespace Eigen;
-using namespace boost::filesystem;
+#include <boost/filesystem.hpp>
+
+#include "PseudoInv_Solver.h"
+#include "csv.h"
+#include "InputParser.h"
+
+
+using std::vector;
+using boost::filesystem::path;
+
 
 int main(int argc, char** argv)
 {
@@ -35,12 +38,12 @@ int main(int argc, char** argv)
     int rowNum=1;
     while(input.read_row(t00,t01,t02,t03,t10,t11,t12,t13,t20,t21,t22,t23,t30,t31,t32,t33))
     {
-        auto newJointsFileName = regex_replace(framesFilePath, regex("smoothFrames"), "jointsTF" + to_string(rowNum));
-        auto newCartesianFileName = regex_replace(framesFilePath, regex("smoothFrames"), "cartTF" + to_string(rowNum));
+        auto newJointsFileName = std::regex_replace(framesFilePath, std::regex("smoothFrames"), "jointsTF" + std::to_string(rowNum));
+        auto newCartesianFileName = std::regex_replace(framesFilePath, std::regex("smoothFrames"), "cartTF" + std::to_string(rowNum));
         auto jointsFilePath = outputDir / path(newJointsFileName);
         auto cartesianFilePath = outputDir / path(newCartesianFileName);
 
-        MatrixXd currentFrame(4,4);
+        Eigen::MatrixXd currentFrame(4,4);
         currentFrame << t00,t01,t02,t03,t10,t11,t12,t13,t20,t21,t22,t23,t30,t31,t32,t33;
         PseudoInv_Solver solver(configParser, inputParser.trajectoryFile(), seeds, currentFrame);
         solver.solve();
@@ -48,5 +51,5 @@ int main(int argc, char** argv)
         rowNum++;
     }
 
-	return 0;
+    return 0;
 }
